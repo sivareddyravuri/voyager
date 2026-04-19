@@ -204,7 +204,7 @@ input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,1
   </div>
 </div> --> 
    
-<div class="auth-card">
+<div class="auth-screen">
   <div class="auth-logo">V<span>O</span>YAGER</div>
   <div class="auth-sub">Your intelligent travel companion</div>
 
@@ -904,7 +904,13 @@ function timeAgo(iso) {
 
   if (!r.ok) return toast(r.error);
 
-  toast("OTP sent to email");
+  const otp = r.otp_demo;
+
+  console.log("%c[VOYAGER RESET OTP]: " + otp,
+    "color:#1a6bcc;font-size:20px;font-weight:bold");
+
+  toast(`Reset code:<span class="otp-code">${otp}</span>`, 12000);
+
   document.getElementById("reset-otp-area").style.display = "block";
 }
 
