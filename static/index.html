@@ -248,10 +248,10 @@ input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,1
       </div>
       <div id="plan-result" style="display:none">
         <div class="selected-route" id="plan-selected"></div>
-        <div class="ai-tip" id="ai-tip-box">
+        <!-- <div class="ai-tip" id="ai-tip-box">
           <strong>✈ AI Travel Tip:</strong>
           <span id="ai-tip-text"><span class="loading"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></span>
-        </div>
+        </div> -->
         <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
           <button class="btn btn-primary" onclick="showTab('compare',document.querySelectorAll('.nav-btn')[1])">View Transport Options</button>
           <button class="btn btn-secondary" onclick="showTab('hotels',document.querySelectorAll('.nav-btn')[2])">Browse Hotels</button>
@@ -551,9 +551,9 @@ async function searchTravel() {
   document.getElementById("plan-result").style.display = "";
 
   // AI tip (call backend-proxied Claude or direct)
-  document.getElementById("ai-tip-text").innerHTML =
-    '<span class="loading"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>';
-  fetchAITip(origin, dest, date);
+  // document.getElementById("ai-tip-text").innerHTML =
+  //   '<span class="loading"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>';
+  // fetchAITip(origin, dest, date);
 
   // Render other tabs
   renderTransport(r.options, origin, dest, dateStr);
@@ -563,30 +563,30 @@ async function searchTravel() {
   toast(`Found ${r.options.length} travel options for ${origin} → ${dest}! ✈️`);
 }
 
-async function fetchAITip(origin, dest, date) {
-  const fallback = FALLBACK_TIPS[Math.floor(Math.random() * FALLBACK_TIPS.length)];
-  try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 120,
-        messages: [{ role: "user", content:
-          `Give one practical travel tip (2 sentences, no markdown) for going from ${origin} to ${dest}. Be specific and concise.`
-        }]
-      })
-    });
-    if (res.ok) {
-      const d = await res.json();
-      document.getElementById("ai-tip-text").textContent = d.content?.[0]?.text || fallback;
-    } else {
-      document.getElementById("ai-tip-text").textContent = fallback;
-    }
-  } catch {
-    document.getElementById("ai-tip-text").textContent = fallback;
-  }
-}
+// async function fetchAITip(origin, dest, date) {
+//   const fallback = FALLBACK_TIPS[Math.floor(Math.random() * FALLBACK_TIPS.length)];
+//   try {
+//     const res = await fetch("https://api.anthropic.com/v1/messages", {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({
+//         model: "claude-sonnet-4-20250514",
+//         max_tokens: 120,
+//         messages: [{ role: "user", content:
+//           `Give one practical travel tip (2 sentences, no markdown) for going from ${origin} to ${dest}. Be specific and concise.`
+//         }]
+//       })
+//     });
+//     if (res.ok) {
+//       const d = await res.json();
+//       document.getElementById("ai-tip-text").textContent = d.content?.[0]?.text || fallback;
+//     } else {
+//       document.getElementById("ai-tip-text").textContent = fallback;
+//     }
+//   } catch {
+//     document.getElementById("ai-tip-text").textContent = fallback;
+//   }
+// }
 
 // ═══════════════════════════════════════════════════════════════════
 //  COMPARE
