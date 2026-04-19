@@ -162,7 +162,7 @@ input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,1
       <div id="auth-form-area">
         <div id="signup-name-group" class="form-group" style="display:none">
           <label>Full Name</label>
-          <input type="text" id="auth-name" placeholder="Jane Doe" />
+          <input type="text" id="auth-name" placeholder="Seshadri " />
         </div>
         <div class="form-group">
           <label>Email address</label>
@@ -176,6 +176,8 @@ input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,1
         <button class="btn btn-primary" style="width:100%" id="btn-send-otp" onclick="sendOTP()">
           Send Verification Code
         </button>
+        <p style="font-size:12px; text-align:right; cursor:pointer; color:var(--blue)"
+   onclick="showForgot()">Forgot Password?</p>
       </div>
 
       <!-- step 2: OTP -->
@@ -200,6 +202,38 @@ input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,1
 
     </div>
   </div>
+</div>
+  <!--step3: Forgot Password -->
+<div id="reset-area" style="display:none">
+  <div class="form-group">
+    <label>Email address</label>
+    <input type="email" id="reset-email" placeholder="you@example.com" />
+  </div>
+
+  <button class="btn btn-primary" style="width:100%" onclick="sendResetOTP()">
+    Send Reset Code
+  </button>
+
+  <div id="reset-otp-area" style="display:none; margin-top:15px;">
+    <div class="form-group">
+      <label>Enter OTP</label>
+      <input id="reset-code" placeholder="6-digit code" />
+    </div>
+
+    <div class="form-group">
+      <label>New Password</label>
+      <input type="password" id="new-password" placeholder="New password" />
+    </div>
+
+    <button class="btn btn-primary" style="width:100%" onclick="resetPassword()">
+      Reset Password
+    </button>
+  </div>
+
+  <button class="btn btn-secondary" style="width:100%;margin-top:10px"
+          onclick="goBackLogin()">
+    Back to Login
+  </button>
 </div>
 
 <!-- ═══════════════════════════ MAIN APP ═══════════════════════════ -->
@@ -784,6 +818,46 @@ function timeAgo(iso) {
   const h = Math.floor(m / 60);
   if (h < 24) return `${h}h ago`;
   return `${Math.floor(h/24)}d ago`;
+}
+
+  //==========================
+         // forget password
+  //=====================
+
+  function showForgot() {
+  document.getElementById("auth-form-area").style.display = "none";
+  document.getElementById("otp-area").style.display = "none";
+  document.getElementById("reset-area").style.display = "block";
+}
+  function goBackLogin() {
+  document.getElementById("reset-area").style.display = "none";
+  document.getElementById("auth-form-area").style.display = "block";
+}
+
+  async function sendResetOTP() {
+  const email = document.getElementById("reset-email").value;
+
+  const r = await api("POST", "/api/auth/forgot-password", { email });
+
+  if (!r.ok) return toast(r.error);
+
+  toast("OTP sent to email");
+  document.getElementById("reset-otp-area").style.display = "block";
+}
+
+  async function resetPassword() {
+  const email = document.getElementById("reset-email").value;
+  const code  = document.getElementById("reset-code").value;
+  const password = document.getElementById("new-password").value;
+
+  const r = await api("POST", "/api/auth/reset-password", {
+    email, code, password
+  });
+
+  if (!r.ok) return toast(r.error);
+
+  toast("Password updated successfully");
+  location.reload();
 }
 </script>
 </body>
