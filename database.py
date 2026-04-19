@@ -11,7 +11,7 @@ DB_PATH = os.environ.get("DB_PATH", os.path.join(os.path.dirname(__file__), ".."
 def _conn():
     c = sqlite3.connect(DB_PATH)
     c.row_factory = sqlite3.Row
-    c.execute("PRAGMA journal_mode=WAL")
+    c.execute("PRAGMA journal_mode=DELETE")
     c.execute("PRAGMA foreign_keys=ON")
     return c
 
