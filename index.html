@@ -563,30 +563,6 @@ async function searchTravel() {
   toast(`Found ${r.options.length} travel options for ${origin} → ${dest}! ✈️`);
 }
 
-async function fetchAITip(origin, dest, date) {
-  const fallback = FALLBACK_TIPS[Math.floor(Math.random() * FALLBACK_TIPS.length)];
-  try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 120,
-        messages: [{ role: "user", content:
-          `Give one practical travel tip (2 sentences, no markdown) for going from ${origin} to ${dest}. Be specific and concise.`
-        }]
-      })
-    });
-    if (res.ok) {
-      const d = await res.json();
-      document.getElementById("ai-tip-text").textContent = d.content?.[0]?.text || fallback;
-    } else {
-      document.getElementById("ai-tip-text").textContent = fallback;
-    }
-  } catch {
-    document.getElementById("ai-tip-text").textContent = fallback;
-  }
-}
 
 // ═══════════════════════════════════════════════════════════════════
 //  COMPARE
