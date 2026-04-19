@@ -518,7 +518,51 @@ const FALLBACK_TIPS = [
   "Local SIM cards are available at major railway stations for ₹149/month with 2 GB/day data.",
 ];
 
-async function searchTravel() {
+// async function searchTravel() {
+//   const origin     = document.getElementById("origin").value.trim();
+//   const dest       = document.getElementById("dest").value.trim();
+//   const date       = document.getElementById("travel-date").value;
+//   const passengers = document.getElementById("passengers").value;
+//   const tClass     = document.getElementById("travel-class").value;
+
+//   if (!origin || !dest) return toast("Please enter both origin and destination.");
+//   if (!date) return toast("Please select a travel date.");
+
+//   const btn = document.getElementById("search-btn");
+//   btn.disabled = true;
+//   btn.innerHTML = '<span class="spinner"></span> Searching…';
+//   document.getElementById("plan-result").style.display = "none";
+
+//   const r = await api("POST", "/api/plans/search", {
+//     origin, destination: dest, travel_date: date,
+//     passengers: parseInt(passengers), travel_class: tClass,
+//   });
+
+//   btn.disabled = false; btn.textContent = "Search Travel Options";
+
+//   if (!r || !r.ok) return toast("❌ " + (r?.error || "Search failed"));
+
+//   plan = r;
+
+//   // Route summary
+//   const dateStr = new Date(date + "T00:00:00").toLocaleDateString("en-IN", {day:"numeric",month:"short",year:"numeric"});
+//   document.getElementById("plan-selected").textContent =
+//     `Route found: ${origin} → ${dest} · ${dateStr} · ${passengers} pax · ${r.options.length} options`;
+//   document.getElementById("plan-result").style.display = "";
+
+//   // AI tip (call backend-proxied Claude or direct)
+//   document.getElementById("ai-tip-text").innerHTML =
+//     '<span class="loading"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>';
+//   fetchAITip(origin, dest, date);
+
+//   // Render other tabs
+//   renderTransport(r.options, origin, dest, dateStr);
+//   loadHotels();
+//   loadAttractions();
+
+//   toast(`Found ${r.options.length} travel options for ${origin} → ${dest}! ✈️`);
+// }
+  async function searchTravel() {
   const origin     = document.getElementById("origin").value.trim();
   const dest       = document.getElementById("dest").value.trim();
   const date       = document.getElementById("travel-date").value;
@@ -538,31 +582,43 @@ async function searchTravel() {
     passengers: parseInt(passengers), travel_class: tClass,
   });
 
-  btn.disabled = false; btn.textContent = "Search Travel Options";
+  btn.disabled = false;
+  btn.textContent = "Search Travel Options";
 
   if (!r || !r.ok) return toast("❌ " + (r?.error || "Search failed"));
 
   plan = r;
 
-  // Route summary
-  const dateStr = new Date(date + "T00:00:00").toLocaleDateString("en-IN", {day:"numeric",month:"short",year:"numeric"});
+  const dateStr = new Date(date + "T00:00:00").toLocaleDateString("en-IN", {
+    day:"numeric", month:"short", year:"numeric"
+  });
+
   document.getElementById("plan-selected").textContent =
     `Route found: ${origin} → ${dest} · ${dateStr} · ${passengers} pax · ${r.options.length} options`;
+
   document.getElementById("plan-result").style.display = "";
 
-  // AI tip (call backend-proxied Claude or direct)
-  document.getElementById("ai-tip-text").innerHTML =
-    '<span class="loading"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>';
-  fetchAITip(origin, dest, date);
+  // ✅ Static tip instead of AI
+  document.getElementById("ai-tip-text").textContent = getRandomTip();
 
-  // Render other tabs
   renderTransport(r.options, origin, dest, dateStr);
   loadHotels();
   loadAttractions();
 
   toast(`Found ${r.options.length} travel options for ${origin} → ${dest}! ✈️`);
 }
+// Static travel tips instead of AI
+const STATIC_TIPS = [
+  "Book tickets 2–3 weeks early for better prices.",
+  "Travel during weekdays to avoid crowds.",
+  "Carry light luggage for easier travel.",
+  "Start early in the morning for a smooth journey.",
+  "Check weather conditions before traveling."
+];
 
+function getRandomTip() {
+  return STATIC_TIPS[Math.floor(Math.random() * STATIC_TIPS.length)];
+}
 
 // ═══════════════════════════════════════════════════════════════════
 //  COMPARE
