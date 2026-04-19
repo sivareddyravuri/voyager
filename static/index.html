@@ -204,7 +204,9 @@ input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,1
   </div>
 </div> --> 
    
-<div class="auth-screen">
+<div id="auth-screen">
+  <div class="auth-wrap">
+    <div class="auth-card">
   <div class="auth-logo">V<span>O</span>YAGER</div>
   <div class="auth-sub">Your intelligent travel companion</div>
 
@@ -230,14 +232,14 @@ input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,1
       <input type="password" id="auth-password" placeholder="Min. 8 characters"
              onkeydown="if(event.key==='Enter')sendOTP()" />
     </div>
-
+   <button class="btn btn-primary" style="width:100%" id="btn-send-otp" onclick="sendOTP()">
+      Send Verification Code
+    </button>
     <!-- ✅ Forgot Password -->
     <p style="font-size:12px; text-align:right; cursor:pointer; color:var(--blue)"
        onclick="showForgot()">Forgot Password?</p>
 
-    <button class="btn btn-primary" style="width:100%" id="btn-send-otp" onclick="sendOTP()">
-      Send Verification Code
-    </button>
+    
   </div>
 
   <!-- OTP -->
@@ -268,7 +270,7 @@ input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,1
       <input type="email" id="reset-email" placeholder="you@example.com" />
     </div>
 
-    <button class="btn btn-primary" style="width:100%" onclick="sendResetOTP()">
+    <button class="btn btn-primary" style="width:100%" onclick="sendOTP()">
       Send Reset Code
     </button>
 
@@ -296,7 +298,8 @@ input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,1
     </button>
 
   </div>
-
+ </div>
+  </div>
 </div>
  
 <!-- ═══════════════════════════ MAIN APP ═══════════════════════════ -->
