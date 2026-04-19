@@ -23,7 +23,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
 .auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;background:linear-gradient(135deg,#0d1b3e 0%,#1a3a72 100%)}
 .auth-card{background:var(--card);border:var(--border);border-radius:var(--r-lg);padding:32px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
 .auth-logo{text-align:center;font-size:26px;font-weight:600;color:var(--navy);margin-bottom:4px}
-.auth-logo span{color:var(--gold)}
+.auth-logo span{color:var(--red)}
 .auth-sub{text-align:center;font-size:13px;color:var(--tx2);margin-bottom:24px}
 .auth-tabs{display:flex;border:var(--border);border-radius:var(--r-md);overflow:hidden;margin-bottom:20px}
 .auth-tab{flex:1;padding:9px;font-size:13px;border:none;background:transparent;cursor:pointer;font-family:inherit;color:var(--tx2);transition:all .2s}
@@ -248,10 +248,7 @@ input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,1
       </div>
       <div id="plan-result" style="display:none">
         <div class="selected-route" id="plan-selected"></div>
-        <div class="ai-tip" id="ai-tip-box">
-          <strong>✈ AI Travel Tip:</strong>
-          <span id="ai-tip-text"><span class="loading"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></span>
-        </div>
+        
         <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
           <button class="btn btn-primary" onclick="showTab('compare',document.querySelectorAll('.nav-btn')[1])">View Transport Options</button>
           <button class="btn btn-secondary" onclick="showTab('hotels',document.querySelectorAll('.nav-btn')[2])">Browse Hotels</button>
