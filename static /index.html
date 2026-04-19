@@ -1,1 +1,823 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Voyager — Travel Planner</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1a6bcc;--navy:#0d1b3e;--sky:#e8f4ff;--gold:#f5a623;
+  --green:#2ecc71;--red:#e74c3c;--gray:#6b7280;
+  --bg:#f9fafb;--card:#ffffff;--border:0.5px solid #e5e7eb;
+  --tx1:#111827;--tx2:#6b7280;--tx3:#9ca3af;
+  --r-md:8px;--r-lg:12px;
+}
+@media(prefers-color-scheme:dark){
+  :root{--bg:#0f172a;--card:#1e293b;--border:0.5px solid #334155;--tx1:#f1f5f9;--tx2:#94a3b8;--tx3:#64748b}
+}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--tx1);min-height:100vh}
+.app{min-height:100vh;display:flex;flex-direction:column}
+
+/* ── Auth ── */
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;background:linear-gradient(135deg,#0d1b3e 0%,#1a3a72 100%)}
+.auth-card{background:var(--card);border:var(--border);border-radius:var(--r-lg);padding:32px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.auth-logo{text-align:center;font-size:26px;font-weight:600;color:var(--navy);margin-bottom:4px}
+.auth-logo span{color:var(--gold)}
+.auth-sub{text-align:center;font-size:13px;color:var(--tx2);margin-bottom:24px}
+.auth-tabs{display:flex;border:var(--border);border-radius:var(--r-md);overflow:hidden;margin-bottom:20px}
+.auth-tab{flex:1;padding:9px;font-size:13px;border:none;background:transparent;cursor:pointer;font-family:inherit;color:var(--tx2);transition:all .2s}
+.auth-tab.active{background:var(--blue);color:#fff}
+.form-group{margin-bottom:14px}
+label{font-size:12px;color:var(--tx2);display:block;margin-bottom:4px;font-weight:500}
+input,select{width:100%;padding:9px 11px;border-radius:var(--r-md);border:0.5px solid #d1d5db;background:var(--card);color:var(--tx1);font-size:13px;font-family:inherit;outline:none;transition:border-color .2s}
+input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,107,204,.12)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 18px;border-radius:var(--r-md);border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:#1558ad}
+.btn-secondary{background:transparent;border:0.5px solid #d1d5db;color:var(--tx1)}.btn-secondary:hover{background:var(--bg)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.otp-inputs{display:flex;gap:8px;justify-content:center;margin:16px 0}
+.otp-input{width:42px;height:48px;text-align:center;font-size:18px;font-weight:600;border:0.5px solid #d1d5db;border-radius:var(--r-md);background:var(--card);color:var(--tx1);font-family:inherit}
+.otp-input:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,107,204,.12);outline:none}
+.otp-hint{font-size:12px;color:var(--blue);text-align:center;margin-bottom:4px}
+.spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Main App ── */
+#main-app{display:none;flex-direction:column;min-height:100vh}
+.header{background:linear-gradient(135deg,#0d1b3e 0%,#1a3a72 100%);padding:14px 20px;display:flex;align-items:center;gap:10px}
+.logo{font-size:22px;font-weight:600;color:#fff;letter-spacing:.5px}
+.logo span{color:var(--gold)}
+.tagline{font-size:12px;color:rgba(255,255,255,.6);margin-top:2px}
+.user-badge{margin-left:auto;background:rgba(255,255,255,.15);border-radius:20px;padding:5px 14px;font-size:12px;color:#fff;cursor:pointer;white-space:nowrap;border:none;font-family:inherit;transition:background .2s}
+.user-badge:hover{background:rgba(255,255,255,.22)}
+.nav{background:var(--card);border-bottom:var(--border);display:flex;overflow-x:auto;gap:0}
+.nav-btn{padding:11px 16px;font-size:13px;border:none;background:transparent;color:var(--tx2);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s;font-family:inherit}
+.nav-btn.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:500}
+.nav-btn:hover:not(.active){color:var(--tx1);background:var(--bg)}
+.content{background:var(--bg);flex:1;padding:20px}
+.tab{display:none}.tab.active{display:block}
+.card{background:var(--card);border-radius:var(--r-lg);border:var(--border);padding:16px 18px;margin-bottom:14px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-row.three{grid-template-columns:1fr 1fr 1fr}
+.section-title{font-size:15px;font-weight:500;margin-bottom:14px;color:var(--tx1)}
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500}
+.badge-green{background:#dcfce7;color:#15803d}
+.badge-blue{background:#dbeafe;color:#1d4ed8}
+.badge-gold{background:#fef3c7;color:#92400e}
+.badge-gray{background:var(--bg);color:var(--tx2)}
+
+/* ── Plan ── */
+.ai-tip{background:linear-gradient(135deg,#e8f4ff,#f0e8ff);border:0.5px solid rgba(26,107,204,.2);border-radius:var(--r-lg);padding:13px 16px;margin-top:14px;font-size:13px;line-height:1.65;color:var(--tx1)}
+.ai-tip strong{color:var(--blue)}
+.selected-route{background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border:0.5px solid #7dd3fc;border-radius:var(--r-md);padding:10px 14px;font-size:13px;color:#0369a1;margin-bottom:14px}
+
+/* ── Compare ── */
+.transport-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+.transport-card{background:var(--card);border:var(--border);border-radius:var(--r-lg);padding:16px;display:flex;flex-direction:column;gap:8px;position:relative;transition:border .2s,transform .15s;cursor:pointer}
+.transport-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.1)}
+.transport-card.best{border:1.5px solid var(--blue)}
+.transport-card.chosen{border:2px solid var(--gold);background:linear-gradient(135deg,#fffdf0,#fff8e0)}
+.mode-icon{font-size:26px}
+.mode-name{font-size:14px;font-weight:600;color:var(--tx1)}
+.price{font-size:20px;font-weight:600;color:var(--blue)}
+.duration{font-size:12px;color:var(--tx2)}
+.features{font-size:11px;color:var(--tx2);line-height:1.65}
+.best-tag{position:absolute;top:10px;right:10px;background:#dbeafe;color:#1d4ed8;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px}
+.chosen-tag{position:absolute;top:10px;right:10px;background:#fef3c7;color:#92400e;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px}
+
+/* ── Hotels ── */
+.filter-bar{background:var(--card);border:var(--border);border-radius:var(--r-lg);padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.filter-bar label{margin:0;color:var(--tx2);font-size:12px;white-space:nowrap}
+.filter-bar select{width:auto;padding:6px 10px;font-size:12px}
+.hotel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.hotel-card{background:var(--card);border:var(--border);border-radius:var(--r-lg);overflow:hidden;transition:transform .15s,box-shadow .15s}
+.hotel-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.1)}
+.hotel-img{height:80px;display:flex;align-items:center;justify-content:center;font-size:32px;position:relative}
+.hotel-badge{position:absolute;top:8px;left:8px;background:var(--gold);color:var(--navy);font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
+.hotel-body{padding:12px}
+.hotel-name{font-size:13px;font-weight:600;margin-bottom:4px;color:var(--tx1)}
+.stars{color:var(--gold);font-size:12px}
+.hotel-price{font-size:16px;font-weight:600;color:var(--blue);margin:6px 0 2px}
+.hotel-review{font-size:11px;color:var(--tx2);line-height:1.5}
+
+/* ── Attractions ── */
+.attr-list{display:flex;flex-direction:column;gap:10px}
+.attr-item{background:var(--card);border:var(--border);border-radius:var(--r-lg);padding:13px 16px;display:flex;align-items:center;gap:12px;transition:transform .15s}
+.attr-item:hover{transform:translateX(3px)}
+.attr-icon{font-size:22px;width:36px;text-align:center;flex-shrink:0}
+.attr-info{flex:1}
+.attr-name{font-size:13px;font-weight:500;color:var(--tx1)}
+.attr-meta{font-size:11px;color:var(--tx2);margin-top:2px}
+.attr-fee{font-size:11px;color:var(--tx2);margin-top:2px}
+.attr-status{font-size:11px;font-weight:600;white-space:nowrap}
+.open{color:#15803d}.closed{color:#dc2626}
+
+/* ── History ── */
+.hist-section{margin-bottom:24px}
+.hist-title{font-size:13px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;padding-bottom:6px;border-bottom:var(--border)}
+.history-list{display:flex;flex-direction:column;gap:10px}
+.history-item{background:var(--card);border:var(--border);border-radius:var(--r-lg);padding:13px 16px;display:flex;align-items:center;gap:14px;transition:transform .15s}
+.history-item:hover{transform:translateX(3px)}
+.history-icon{font-size:22px;flex-shrink:0}
+.history-info{flex:1}
+.history-route{font-size:13px;font-weight:500;color:var(--tx1)}
+.history-meta{font-size:11px;color:var(--tx2);margin-top:2px}
+.history-price{font-size:14px;font-weight:600;color:var(--blue);white-space:nowrap}
+.status-booked{background:#dcfce7;color:#15803d;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;display:inline-block;margin-top:4px}
+.status-searched{background:#fef3c7;color:#92400e;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;display:inline-block;margin-top:4px}
+.search-chips{display:flex;flex-wrap:wrap;gap:6px}
+.search-chip{background:var(--card);border:var(--border);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--tx2)}
+
+/* ── Utils ── */
+.empty-state{text-align:center;padding:40px 20px;color:var(--tx2);font-size:13px}
+.empty-icon{font-size:36px;margin-bottom:10px}
+.toast{position:fixed;top:20px;right:20px;background:var(--navy);color:#fff;padding:12px 18px;border-radius:var(--r-lg);font-size:13px;max-width:320px;z-index:9999;animation:slideIn .3s ease;line-height:1.5;box-shadow:0 8px 30px rgba(0,0,0,.3)}
+.toast .otp-code{font-size:24px;font-weight:700;letter-spacing:6px;color:var(--gold);display:block;margin-top:6px;text-align:center}
+@keyframes slideIn{from{transform:translateX(110%);opacity:0}to{transform:none;opacity:1}}
+.loading{display:flex;align-items:center;gap:8px;color:var(--tx2);font-size:13px;padding:20px 0}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--blue);animation:bounce 1.2s infinite}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-8px)}}
+.divider{border:none;border-top:var(--border);margin:16px 0}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+<!-- ═══════════════════════════ AUTH ═══════════════════════════════ -->
+<div id="auth-screen">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-logo">V<span>O</span>YAGER</div>
+      <div class="auth-sub">Your intelligent travel companion</div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuth('signin')">Sign In</button>
+        <button class="auth-tab" onclick="switchAuth('signup')">Sign Up</button>
+      </div>
+
+      <!-- step 1: credentials -->
+      <div id="auth-form-area">
+        <div id="signup-name-group" class="form-group" style="display:none">
+          <label>Full Name</label>
+          <input type="text" id="auth-name" placeholder="Jane Doe" />
+        </div>
+        <div class="form-group">
+          <label>Email address</label>
+          <input type="email" id="auth-email" placeholder="you@example.com" />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="auth-password" placeholder="Min. 8 characters"
+                 onkeydown="if(event.key==='Enter')sendOTP()" />
+        </div>
+        <button class="btn btn-primary" style="width:100%" id="btn-send-otp" onclick="sendOTP()">
+          Send Verification Code
+        </button>
+      </div>
+
+      <!-- step 2: OTP -->
+      <div id="otp-area" style="display:none">
+        <p style="font-size:13px;color:var(--tx2);text-align:center;margin-bottom:2px">
+          Enter the 6-digit code sent to your email
+        </p>
+        <p class="otp-hint">Check the toast or browser console for the demo code</p>
+        <div class="otp-inputs">
+          <input class="otp-input" maxlength="1" id="o1" oninput="otpNext(this,'o2')" onkeydown="otpBack(event,this,null)" />
+          <input class="otp-input" maxlength="1" id="o2" oninput="otpNext(this,'o3')" onkeydown="otpBack(event,this,'o1')" />
+          <input class="otp-input" maxlength="1" id="o3" oninput="otpNext(this,'o4')" onkeydown="otpBack(event,this,'o2')" />
+          <input class="otp-input" maxlength="1" id="o4" oninput="otpNext(this,'o5')" onkeydown="otpBack(event,this,'o3')" />
+          <input class="otp-input" maxlength="1" id="o5" oninput="otpNext(this,'o6')" onkeydown="otpBack(event,this,'o4')" />
+          <input class="otp-input" maxlength="1" id="o6" oninput="otpLast(this)"      onkeydown="otpBack(event,this,'o5')" />
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-bottom:10px" id="btn-verify-otp" onclick="verifyOTP()">
+          Verify &amp; Continue
+        </button>
+        <button class="btn btn-secondary" style="width:100%;font-size:12px" onclick="resendOTP()">Resend Code</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ MAIN APP ═══════════════════════════ -->
+<div id="main-app">
+  <div class="header">
+    <div>
+      <div class="logo">V<span>O</span>YAGER</div>
+      <div class="tagline">Intelligent Travel Planning</div>
+    </div>
+    <button class="user-badge" onclick="logout()" id="user-name">user · Sign out</button>
+  </div>
+
+  <div class="nav">
+    <button class="nav-btn active" onclick="showTab('plan',this)">Plan</button>
+    <button class="nav-btn" onclick="showTab('compare',this)">Compare</button>
+    <button class="nav-btn" onclick="showTab('hotels',this)">Hotels</button>
+    <button class="nav-btn" onclick="showTab('attractions',this)">Attractions</button>
+    <button class="nav-btn" onclick="showTab('history',this)">History</button>
+  </div>
+
+  <div class="content">
+
+    <!-- ── Plan ─────────────────────────────────────────────────── -->
+    <div class="tab active" id="tab-plan">
+      <div class="section-title">Plan your journey</div>
+      <div class="card">
+        <div class="form-row">
+          <div><label>From (Origin)</label><input id="origin" placeholder="e.g. Mumbai" /></div>
+          <div><label>To (Destination)</label><input id="dest" placeholder="e.g. Goa" /></div>
+        </div>
+        <div class="form-row three">
+          <div><label>Travel Date</label><input type="date" id="travel-date" /></div>
+          <div><label>Passengers</label>
+            <select id="passengers">
+              <option value="1">1</option><option value="2">2</option>
+              <option value="3">3</option><option value="4" selected>4</option><option value="5">5+</option>
+            </select>
+          </div>
+          <div><label>Class</label>
+            <select id="travel-class">
+              <option>Economy</option><option>Business</option><option>First Class</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="searchTravel()" id="search-btn">Search Travel Options</button>
+      </div>
+      <div id="plan-result" style="display:none">
+        <div class="selected-route" id="plan-selected"></div>
+        <div class="ai-tip" id="ai-tip-box">
+          <strong>✈ AI Travel Tip:</strong>
+          <span id="ai-tip-text"><span class="loading"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></span>
+        </div>
+        <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="showTab('compare',document.querySelectorAll('.nav-btn')[1])">View Transport Options</button>
+          <button class="btn btn-secondary" onclick="showTab('hotels',document.querySelectorAll('.nav-btn')[2])">Browse Hotels</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Compare ──────────────────────────────────────────────── -->
+    <div class="tab" id="tab-compare">
+      <div class="section-title">Compare transport options</div>
+      <div id="compare-route-info" class="selected-route">Enter origin &amp; destination in the Plan tab first.</div>
+      <div class="transport-grid" id="transport-grid">
+        <div class="empty-state"><div class="empty-icon">🚌</div>No options yet. Search a route first.</div>
+      </div>
+    </div>
+
+    <!-- ── Hotels ───────────────────────────────────────────────── -->
+    <div class="tab" id="tab-hotels">
+      <div class="section-title">Hotel suggestions</div>
+      <div class="filter-bar">
+        <label>Filter:</label>
+        <select id="h-stars" onchange="loadHotels()">
+          <option value="">All Stars</option>
+          <option value="3">3★+</option>
+          <option value="4">4★+</option>
+          <option value="5">5★ only</option>
+        </select>
+        <select id="h-budget" onchange="loadHotels()">
+          <option value="">Any Budget</option>
+          <option value="2500">Under ₹2,500</option>
+          <option value="6000">Under ₹6,000</option>
+          <option value="10000">Under ₹10,000</option>
+        </select>
+        <span id="hotels-dest-label" style="font-size:12px;color:var(--tx2);margin-left:auto"></span>
+      </div>
+      <div class="hotel-grid" id="hotel-grid">
+        <div class="empty-state"><div class="empty-icon">🏨</div>Search a trip to see hotel suggestions.</div>
+      </div>
+    </div>
+
+    <!-- ── Attractions ──────────────────────────────────────────── -->
+    <div class="tab" id="tab-attractions">
+      <div class="section-title">Nearby attractions</div>
+      <p id="attr-dest-label" style="font-size:12px;color:var(--tx2);margin-bottom:12px"></p>
+      <div class="attr-list" id="attr-list">
+        <div class="empty-state"><div class="empty-icon">📍</div>Search a trip to see nearby attractions.</div>
+      </div>
+    </div>
+
+    <!-- ── History ──────────────────────────────────────────────── -->
+    <div class="tab" id="tab-history">
+      <div class="section-title">Travel history</div>
+      <div id="history-container">
+        <div class="empty-state"><div class="empty-icon">🗺️</div>No history yet.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div><!-- /.app -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════════
+const API  = "";          // same-origin; change to "https://your-domain.com" for remote
+let token  = localStorage.getItem("vt") || null;
+let user   = JSON.parse(localStorage.getItem("vu") || "null");
+let plan   = null;        // current search result
+let authMode = "signin";
+
+// ═══════════════════════════════════════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════════════════════════════════════
+window.onload = async () => {
+  document.getElementById("travel-date").valueAsDate = new Date();
+  if (token) {
+    const r = await api("GET", "/api/me");
+    if (r && r.ok) { user = r.user; enterApp(); return; }
+    token = null; localStorage.removeItem("vt");
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════════
+//  API HELPER
+// ═══════════════════════════════════════════════════════════════════
+async function api(method, path, body = null) {
+  try {
+    const opts = { method, headers: { "Content-Type": "application/json" } };
+    if (token) opts.headers["Authorization"] = "Bearer " + token;
+    if (body)  opts.body = JSON.stringify(body);
+    const res = await fetch(API + path, opts);
+    return res.json();
+  } catch (e) {
+    console.error("API error:", e);
+    return { ok: false, error: "Network error" };
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════════════════════════
+function toast(html, dur = 5000) {
+  document.querySelectorAll(".toast").forEach(t => t.remove());
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.innerHTML = html;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), dur);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  AUTH
+// ═══════════════════════════════════════════════════════════════════
+function switchAuth(mode) {
+  authMode = mode;
+  document.querySelectorAll(".auth-tab").forEach((t, i) =>
+    t.classList.toggle("active", (mode === "signin" ? i === 0 : i === 1))
+  );
+  document.getElementById("signup-name-group").style.display = mode === "signup" ? "" : "none";
+  document.getElementById("auth-password").placeholder = mode === "signup" ? "Min. 8 characters" : "Your password";
+  // Reset to step 1
+  document.getElementById("auth-form-area").style.display = "";
+  document.getElementById("otp-area").style.display = "none";
+}
+
+async function sendOTP() {
+  const email = document.getElementById("auth-email").value.trim().toLowerCase();
+  const pw    = document.getElementById("auth-password").value;
+  const name  = document.getElementById("auth-name").value.trim();
+
+  if (!email || !pw) return toast("Please enter email and password.");
+  if (!email.includes("@")) return toast("Please enter a valid email.");
+  if (authMode === "signup" && !name) return toast("Please enter your full name.");
+
+  const btn = document.getElementById("btn-send-otp");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Sending…';
+
+  let r;
+  if (authMode === "signup") {
+    r = await api("POST", "/api/auth/signup", { name, email, password: pw });
+  } else {
+    r = await api("POST", "/api/auth/login", { email, password: pw });
+  }
+
+  btn.disabled = false;
+  btn.textContent = "Send Verification Code";
+
+  if (!r || !r.ok) return toast("❌ " + (r?.error || "Request failed"));
+
+  // Show OTP in toast + console
+  const otp = r.otp_demo;
+  console.log("%c[VOYAGER] OTP: " + otp, "color:#1a6bcc;font-size:20px;font-weight:bold;padding:4px 8px");
+  toast(`Verification code sent!<span class="otp-code">${otp}</span><span style="font-size:11px;opacity:.7">Also in browser console</span>`, 12000);
+
+  document.getElementById("auth-form-area").style.display = "none";
+  document.getElementById("otp-area").style.display = "";
+  clearOTP();
+  setTimeout(() => document.getElementById("o1").focus(), 80);
+}
+
+function otpNext(el, nextId) {
+  if (el.value && nextId) document.getElementById(nextId)?.focus();
+}
+function otpBack(e, el, prevId) {
+  if (e.key === "Backspace" && !el.value && prevId) {
+    const p = document.getElementById(prevId);
+    if (p) { p.value = ""; p.focus(); }
+  }
+}
+function otpLast(el) {
+  if (el.value) setTimeout(verifyOTP, 200);
+}
+function clearOTP() {
+  ["o1","o2","o3","o4","o5","o6"].forEach(id => { const el = document.getElementById(id); if(el) el.value=""; });
+}
+function getOTP() {
+  return ["o1","o2","o3","o4","o5","o6"].map(id => document.getElementById(id)?.value || "").join("");
+}
+
+async function verifyOTP() {
+  const code  = getOTP();
+  const email = document.getElementById("auth-email").value.trim().toLowerCase();
+  if (code.length < 6) return toast("Enter the complete 6-digit code.");
+
+  const btn = document.getElementById("btn-verify-otp");
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Verifying…';
+
+  const endpoint = authMode === "signup" ? "/api/auth/verify-signup" : "/api/auth/verify-login";
+  const r = await api("POST", endpoint, { email, code });
+
+  btn.disabled = false; btn.textContent = "Verify & Continue";
+
+  if (!r || !r.ok) {
+    toast("❌ " + (r?.error || "Verification failed"));
+    clearOTP();
+    document.getElementById("o1").focus();
+    return;
+  }
+
+  token = r.token; user = r.user;
+  localStorage.setItem("vt", token);
+  localStorage.setItem("vu", JSON.stringify(user));
+  enterApp();
+}
+
+async function resendOTP() {
+  clearOTP();
+  const email = document.getElementById("auth-email").value.trim().toLowerCase();
+  const pw    = document.getElementById("auth-password").value;
+  const name  = document.getElementById("auth-name").value.trim();
+  const endpoint = authMode === "signup" ? "/api/auth/signup" : "/api/auth/login";
+  const body     = authMode === "signup" ? { name, email, password: pw } : { email, password: pw };
+  const r = await api("POST", endpoint, body);
+  if (r?.ok) {
+    const otp = r.otp_demo;
+    console.log("%c[VOYAGER] Resent OTP: " + otp, "color:#1a6bcc;font-size:20px;font-weight:bold");
+    toast(`New code sent!<span class="otp-code">${otp}</span>`, 12000);
+  }
+  document.getElementById("o1").focus();
+}
+
+function enterApp() {
+  document.getElementById("auth-screen").style.display = "none";
+  document.getElementById("main-app").style.display = "flex";
+  document.getElementById("user-name").textContent = (user?.name || user?.email || "User") + " · Sign out";
+  toast(`Welcome, ${user?.name || "traveller"}! ✈️`);
+}
+
+async function logout() {
+  await api("POST", "/api/auth/logout");
+  token = null; user = null; plan = null;
+  localStorage.removeItem("vt"); localStorage.removeItem("vu");
+  document.getElementById("main-app").style.display = "none";
+  document.getElementById("auth-screen").style.display = "";
+  document.getElementById("auth-form-area").style.display = "";
+  document.getElementById("otp-area").style.display = "none";
+  document.getElementById("auth-email").value = "";
+  document.getElementById("auth-password").value = "";
+  clearOTP();
+  showTab("plan", document.querySelector(".nav-btn.active"));
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════════════════════
+function showTab(name, btn) {
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById("tab-" + name).classList.add("active");
+  if (btn) btn.classList.add("active");
+  if (name === "history") loadHistory();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  PLAN — SEARCH
+// ═══════════════════════════════════════════════════════════════════
+const FALLBACK_TIPS = [
+  "Book 2–3 weeks ahead for the best prices on this route. Tuesdays and Wednesdays offer the lowest fares.",
+  "Consider an overnight bus or train — you save on a hotel night and arrive refreshed in the morning.",
+  "Pack light! Budget airlines charge ₹500–₹1,500 extra for check-in bags over 15 kg.",
+  "Visit major attractions right when they open (9 AM) to beat the crowds and get the best photos.",
+  "Local SIM cards are available at major railway stations for ₹149/month with 2 GB/day data.",
+];
+
+// async function searchTravel() {
+//   const origin     = document.getElementById("origin").value.trim();
+//   const dest       = document.getElementById("dest").value.trim();
+//   const date       = document.getElementById("travel-date").value;
+//   const passengers = document.getElementById("passengers").value;
+//   const tClass     = document.getElementById("travel-class").value;
+
+//   if (!origin || !dest) return toast("Please enter both origin and destination.");
+//   if (!date) return toast("Please select a travel date.");
+
+//   const btn = document.getElementById("search-btn");
+//   btn.disabled = true;
+//   btn.innerHTML = '<span class="spinner"></span> Searching…';
+//   document.getElementById("plan-result").style.display = "none";
+
+//   const r = await api("POST", "/api/plans/search", {
+//     origin, destination: dest, travel_date: date,
+//     passengers: parseInt(passengers), travel_class: tClass,
+//   });
+
+//   btn.disabled = false; btn.textContent = "Search Travel Options";
+
+//   if (!r || !r.ok) return toast("❌ " + (r?.error || "Search failed"));
+
+//   plan = r;
+
+//   // Route summary
+//   const dateStr = new Date(date + "T00:00:00").toLocaleDateString("en-IN", {day:"numeric",month:"short",year:"numeric"});
+//   document.getElementById("plan-selected").textContent =
+//     `Route found: ${origin} → ${dest} · ${dateStr} · ${passengers} pax · ${r.options.length} options`;
+//   document.getElementById("plan-result").style.display = "";
+
+//   // AI tip (call backend-proxied Claude or direct)
+//   document.getElementById("ai-tip-text").innerHTML =
+//     '<span class="loading"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>';
+//   fetchAITip(origin, dest, date);
+
+//   // Render other tabs
+//   renderTransport(r.options, origin, dest, dateStr);
+//   loadHotels();
+//   loadAttractions();
+
+//   toast(`Found ${r.options.length} travel options for ${origin} → ${dest}! ✈️`);
+// }
+  async function searchTravel() {
+  const origin     = document.getElementById("origin").value.trim();
+  const dest       = document.getElementById("dest").value.trim();
+  const date       = document.getElementById("travel-date").value;
+  const passengers = document.getElementById("passengers").value;
+  const tClass     = document.getElementById("travel-class").value;
+
+  if (!origin || !dest) return toast("Please enter both origin and destination.");
+  if (!date) return toast("Please select a travel date.");
+
+  const btn = document.getElementById("search-btn");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Searching…';
+  document.getElementById("plan-result").style.display = "none";
+
+  const r = await api("POST", "/api/plans/search", {
+    origin, destination: dest, travel_date: date,
+    passengers: parseInt(passengers), travel_class: tClass,
+  });
+
+  btn.disabled = false;
+  btn.textContent = "Search Travel Options";
+
+  if (!r || !r.ok) return toast("❌ " + (r?.error || "Search failed"));
+
+  plan = r;
+
+  const dateStr = new Date(date + "T00:00:00").toLocaleDateString("en-IN", {
+    day:"numeric", month:"short", year:"numeric"
+  });
+
+  document.getElementById("plan-selected").textContent =
+    `Route found: ${origin} → ${dest} · ${dateStr} · ${passengers} pax · ${r.options.length} options`;
+
+  document.getElementById("plan-result").style.display = "";
+
+  // ✅ Static tip instead of AI
+  document.getElementById("ai-tip-text").textContent = getRandomTip();
+
+  renderTransport(r.options, origin, dest, dateStr);
+  loadHotels();
+  loadAttractions();
+
+  toast(`Found ${r.options.length} travel options for ${origin} → ${dest}! ✈️`);
+}
+// Static travel tips instead of AI
+const STATIC_TIPS = [
+  "Book tickets 2–3 weeks early for better prices.",
+  "Travel during weekdays to avoid crowds.",
+  "Carry light luggage for easier travel.",
+  "Start early in the morning for a smooth journey.",
+  "Check weather conditions before traveling."
+];
+
+function getRandomTip() {
+  return STATIC_TIPS[Math.floor(Math.random() * STATIC_TIPS.length)];
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  COMPARE
+// ═══════════════════════════════════════════════════════════════════
+function renderTransport(options, origin, dest, dateStr) {
+  document.getElementById("compare-route-info").textContent =
+    `Showing options for ${origin} → ${dest}` + (dateStr ? ` · ${dateStr}` : "");
+
+  const grid = document.getElementById("transport-grid");
+  grid.innerHTML = "";
+  options.forEach(opt => {
+    const isChosen = plan?.chosen === opt.mode;
+    const card = document.createElement("div");
+    card.className = "transport-card" + (opt.cheapest ? " best" : "") + (isChosen ? " chosen" : "");
+    card.innerHTML = `
+      ${isChosen ? '<div class="chosen-tag">✓ Selected</div>' : opt.cheapest ? '<div class="best-tag">Best Price</div>' : ""}
+      <div class="mode-icon">${opt.icon}</div>
+      <div class="mode-name">${opt.mode}</div>
+      <div class="price">${opt.price_fmt}</div>
+      <div class="duration">⏱ ${opt.duration} · ${opt.provider}</div>
+      <div class="features">${opt.features.replace(/,\s*/g, " · ")}</div>
+      <button class="btn btn-secondary btn-sm" style="margin-top:8px"
+              onclick="selectTransport('${opt.mode}','${opt.price_fmt}','${opt.duration}',${opt.price})">
+        ${isChosen ? "✓ Selected" : "Select &amp; Book"}
+      </button>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+async function selectTransport(mode, priceFmt, duration, priceNum) {
+  if (!plan) return;
+  const r = await api("POST", "/api/plans/select", {
+    plan_id: plan.plan_id, mode, price: priceFmt, duration
+  });
+  plan.chosen = mode;
+  renderTransport(plan.options, plan.origin, plan.destination, "");
+  toast(`${mode} selected & saved to history! ${priceFmt} · ${duration}`);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  HOTELS
+// ═══════════════════════════════════════════════════════════════════
+async function loadHotels() {
+  const dest    = plan?.destination || "";
+  const bmax    = document.getElementById("h-budget")?.value || "";
+  const smin    = document.getElementById("h-stars")?.value  || "";
+  if (!dest) return;
+
+  document.getElementById("hotels-dest-label").textContent = `Showing hotels in ${dest}`;
+  let url = `/api/hotels?destination=${encodeURIComponent(dest)}`;
+  if (bmax) url += `&budget_max=${bmax}`;
+  if (smin) url += `&stars_min=${smin}`;
+
+  const r = await api("GET", url);
+  if (!r?.ok) return;
+
+  const grid = document.getElementById("hotel-grid");
+  if (!r.hotels.length) {
+    grid.innerHTML = '<div class="empty-state"><div class="empty-icon">🏨</div>No hotels match your filters.</div>';
+    return;
+  }
+  grid.innerHTML = r.hotels.map(h => `
+    <div class="hotel-card">
+      <div class="hotel-img" style="background:${h.bg}">
+        ${h.emoji}
+        <div class="hotel-badge">${h.badge}</div>
+      </div>
+      <div class="hotel-body">
+        <div class="hotel-name">${h.name}</div>
+        <div class="stars">${"★".repeat(h.stars)}${"☆".repeat(5-h.stars)}</div>
+        <div class="hotel-price">${h.price_fmt} <span style="font-size:11px;font-weight:400;color:var(--tx2)">/night</span></div>
+        <div class="hotel-review">⭐ ${h.rating} · ${h.reviews} reviews · ${h.tag}</div>
+        <div style="margin-top:10px;display:flex;gap:6px">
+          <button class="btn btn-primary btn-sm" style="flex:1"
+                  onclick="bookmarkHotel('${h.name.replace(/'/g,"\\'")}','${h.price_fmt}',${h.stars})">
+            🔖 Save
+          </button>
+          <button class="btn btn-secondary btn-sm" style="flex:1">Book Now</button>
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+
+async function bookmarkHotel(name, price, stars) {
+  const r = await api("POST", "/api/hotels/bookmark", {
+    plan_id: plan?.plan_id || null,
+    hotel_name: name, price, stars,
+    destination: plan?.destination || ""
+  });
+  toast(r?.ok ? `🔖 ${name} saved!` : "❌ " + (r?.error || "Failed"));
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  ATTRACTIONS
+// ═══════════════════════════════════════════════════════════════════
+async function loadAttractions() {
+  const dest = plan?.destination || "";
+  if (!dest) return;
+  document.getElementById("attr-dest-label").textContent = `Showing attractions near ${dest} · Live open/closed status`;
+  const r = await api("GET", `/api/attractions?destination=${encodeURIComponent(dest)}`);
+  if (!r?.ok) return;
+
+  document.getElementById("attr-list").innerHTML = r.attractions.map(a => `
+    <div class="attr-item">
+      <div class="attr-icon">${a.icon}</div>
+      <div class="attr-info">
+        <div class="attr-name">${a.name}</div>
+        <div class="attr-meta">${a.type} · ${a.meta}</div>
+        <div class="attr-fee">Entry: ${a.fee_fmt}</div>
+      </div>
+      <div class="attr-status ${a.is_open ? "open" : "closed"}">
+        ● ${a.is_open ? "Open now" : "Closed now"}
+      </div>
+    </div>
+  `).join("");
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  HISTORY
+// ═══════════════════════════════════════════════════════════════════
+async function loadHistory() {
+  const r = await api("GET", "/api/history");
+  const container = document.getElementById("history-container");
+  if (!r?.ok) { container.innerHTML = '<div class="empty-state">Could not load history.</div>'; return; }
+
+  let html = "";
+
+  // Plans
+  html += '<div class="hist-section"><div class="hist-title">✈ Travel Plans</div>';
+  if (!r.plans.length) {
+    html += '<div class="empty-state"><div class="empty-icon">✈️</div>No trips planned yet.</div>';
+  } else {
+    html += '<div class="history-list">' + r.plans.map(p => {
+      const icons = { Bus:"🚌", Train:"🚂", Cab:"🚕", Flight:"✈️" };
+      const icon  = p.selected_mode ? (icons[p.selected_mode] || "🗺️") : "🗺️";
+      const dateStr = p.travel_date ? new Date(p.travel_date + "T00:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"}) : "";
+      return `
+        <div class="history-item">
+          <div class="history-icon">${icon}</div>
+          <div class="history-info">
+            <div class="history-route">${p.origin} → ${p.destination} · ${p.passengers || 1} pax</div>
+            <div class="history-meta">${dateStr} · ${p.travel_class || "Economy"} · Planned ${timeAgo(p.created_at)}</div>
+            <span class="${p.status === "booked" ? "status-booked" : "status-searched"}">${p.status === "booked" ? "✓ Booked" : "🔍 Searched"}</span>
+          </div>
+          <div style="text-align:right">
+            ${p.selected_price ? `<div class="history-price">${p.selected_price}</div><div style="font-size:11px;color:var(--tx2)">${p.selected_mode} · ${p.selected_dur || ""}</div>` : ""}
+          </div>
+        </div>`;
+    }).join("") + "</div>";
+  }
+  html += "</div>";
+
+  // Hotel Bookmarks
+  html += '<div class="hist-section"><div class="hist-title">🏨 Saved Hotels</div>';
+  if (!r.bookmarks.length) {
+    html += '<div class="empty-state"><div class="empty-icon">🏨</div>No hotels saved yet.</div>';
+  } else {
+    html += '<div class="history-list">' + r.bookmarks.map(b => `
+      <div class="history-item">
+        <div class="history-icon">🏨</div>
+        <div class="history-info">
+          <div class="history-route">${b.hotel_name}</div>
+          <div class="history-meta">${b.destination} · ${"★".repeat(Number(b.stars) || 3)} · Saved ${timeAgo(b.created_at)}</div>
+        </div>
+        <div class="history-price">${b.price}</div>
+      </div>`).join("") + "</div>";
+  }
+  html += "</div>";
+
+  // Search history
+  html += '<div class="hist-section"><div class="hist-title">🔍 Recent Searches</div>';
+  if (!r.searches.length) {
+    html += '<div class="empty-state">No searches yet.</div>';
+  } else {
+    html += '<div class="search-chips">' + r.searches.map(s =>
+      `<span class="search-chip">🔍 ${s.query}</span>`
+    ).join("") + "</div>";
+  }
+  html += "</div>";
+
+  container.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════════════════════════════════
+function timeAgo(iso) {
+  if (!iso) return "";
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return "just now";
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h/24)}d ago`;
+}
+</script>
+</body>
+</html>
