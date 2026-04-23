@@ -208,7 +208,7 @@ input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,1
   <div class="auth-wrap">
     <div class="auth-card">
   <div class="auth-logo">V<span>O</span>YAGER</div>
-  <div class="auth-sub">Your travel companion</div>
+  <div class="auth-sub">Your intelligent travel companion</div>
 
   <div class="auth-tabs">
     <button class="auth-tab active" onclick="switchAuth('signin')">Sign In</button>
@@ -243,24 +243,24 @@ input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,1
   </div> 
 
   <!-- OTP -->
-    <div id="otp-area" style="display:none">
-        <p style="font-size:13px;color:var(--tx2);text-align:center;margin-bottom:2px">
-          Enter the 6-digit code sent to your email
-        </p>
-        <p class="otp-hint">Check the toast or browser console for the demo code</p>
-        <div class="otp-inputs">
-          <input class="otp-input" maxlength="1" id="o1" oninput="otpNext(this,'o2')" onkeydown="otpBack(event,this,null)" />
-          <input class="otp-input" maxlength="1" id="o2" oninput="otpNext(this,'o3')" onkeydown="otpBack(event,this,'o1')" />
-          <input class="otp-input" maxlength="1" id="o3" oninput="otpNext(this,'o4')" onkeydown="otpBack(event,this,'o2')" />
-          <input class="otp-input" maxlength="1" id="o4" oninput="otpNext(this,'o5')" onkeydown="otpBack(event,this,'o3')" />
-          <input class="otp-input" maxlength="1" id="o5" oninput="otpNext(this,'o6')" onkeydown="otpBack(event,this,'o4')" />
-          <input class="otp-input" maxlength="1" id="o6" oninput="otpLast(this)"      onkeydown="otpBack(event,this,'o5')" />
-        </div>
-        <button class="btn btn-primary" style="width:100%;margin-bottom:10px" id="btn-verify-otp" onclick="verifyOTP()">
-          Verify &amp; Continue
-        </button>
-        <button class="btn btn-secondary" style="width:100%;font-size:12px" onclick="resendOTP()">Resend Code</button>
-      </div>
+   <div id="otp-area" style="display:none">
+    <p style="font-size:13px;color:var(--tx2);text-align:center;margin-bottom:2px">
+      Enter the 6-digit code sent to your email
+    </p>
+
+    <div class="otp-inputs">
+      <input class="otp-input" maxlength="1" id="o1" oninput="otpNext(this,'o2')" />
+      <input class="otp-input" maxlength="1" id="o2" oninput="otpNext(this,'o3')" />
+      <input class="otp-input" maxlength="1" id="o3" oninput="otpNext(this,'o4')" />
+      <input class="otp-input" maxlength="1" id="o4" oninput="otpNext(this,'o5')" />
+      <input class="otp-input" maxlength="1" id="o5" oninput="otpNext(this,'o6')" />
+      <input class="otp-input" maxlength="1" id="o6" oninput="verifyOTP()" />
+    </div>
+
+    <button class="btn btn-primary" style="width:100%" onclick="verifyOTP()">
+      Verify & Continue
+    </button>
+  </div> 
 
   <!-- RESET PASSWORD  -->
  <div id="reset-area" style="display:none">
@@ -270,7 +270,7 @@ input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,1
       <input type="email" id="reset-email" placeholder="you@example.com" />
     </div>
 
-    <button class="btn btn-primary" style="width:100%" onclick="sendResetOTP()">
+    <button class="btn btn-primary" style="width:100%" onclick="sendOTP()">
       Send Reset Code
     </button>
 
@@ -279,12 +279,6 @@ input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,1
       <div class="form-group">
         <label>Enter OTP</label>
         <input id="reset-code" placeholder="6-digit code" />
-          <div id="otp-area" style="display:none">
-        <p style="font-size:13px;color:var(--tx2);text-align:center;margin-bottom:2px">
-          Enter the 6-digit code sent to your email
-        </p>
-        <p class="otp-hint">Check the toast or browser console for the demo code</p>
-        
       </div>
 
       <div class="form-group">
@@ -906,45 +900,21 @@ function timeAgo(iso) {
   document.getElementById("auth-form-area").style.display = "block";
 }
 
- async function sendResetOTP() {
-  const email = document.getElementById("auth-email").value.trim().toLowerCase();
+  async function sendResetOTP() {
+  const email = document.getElementById("reset-email").value;
 
-  if (!email) return toast("Please enter your email.");
-  if (!email.includes("@")) return toast("Please enter a valid email.");
-
-  const btn = document.getElementById("btn-send-otp");
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> Sending…';
-
-  // Call forgot password API
   const r = await api("POST", "/api/auth/forgot-password", { email });
 
-  btn.disabled = false;
-  btn.textContent = "Send Reset Code";
+  if (!r.ok) return toast(r.error);
 
-  if (!r || !r.ok) return toast("❌ " + (r?.error || "Request failed"));
-
-  // ✅ Display OTP in console + toast
   const otp = r.otp_demo;
 
-  console.log(
-    "%c[RESET OTP]: " + otp,
-    "color:#ff4d4f;font-size:20px;font-weight:bold;padding:4px 8px"
-  );
+  console.log("%c[VOYAGER RESET OTP]: " + otp,
+    "color:#1a6bcc;font-size:20px;font-weight:bold");
 
-  toast(
-    `Reset code sent! 
-     <span class="otp-code">${otp}</span>
-     <span style="font-size:11px;opacity:.7">Also in browser console</span>`,
-    12000
-  );
+  toast(`Reset code:<span class="otp-code">${otp}</span>`, 12000);
 
-  // Show OTP input UI
-  document.getElementById("auth-form-area").style.display = "none";
-  document.getElementById("otp-area").style.display = "";
-
-  clearOTP();
-  setTimeout(() => document.getElementById("o1").focus(), 80);
+  document.getElementById("reset-otp-area").style.display = "block";
 }
 
   async function resetPassword() {
