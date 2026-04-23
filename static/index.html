@@ -243,24 +243,24 @@ input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,1
   </div> 
 
   <!-- OTP -->
-   <div id="otp-area" style="display:none">
-    <p style="font-size:13px;color:var(--tx2);text-align:center;margin-bottom:2px">
-      Enter the 6-digit code sent to your email
-    </p>
-
-    <div class="otp-inputs">
-      <input class="otp-input" maxlength="1" id="o1" oninput="otpNext(this,'o2')" />
-      <input class="otp-input" maxlength="1" id="o2" oninput="otpNext(this,'o3')" />
-      <input class="otp-input" maxlength="1" id="o3" oninput="otpNext(this,'o4')" />
-      <input class="otp-input" maxlength="1" id="o4" oninput="otpNext(this,'o5')" />
-      <input class="otp-input" maxlength="1" id="o5" oninput="otpNext(this,'o6')" />
-      <input class="otp-input" maxlength="1" id="o6" oninput="verifyOTP()" />
-    </div>
-
-    <button class="btn btn-primary" style="width:100%" onclick="verifyOTP()">
-      Verify & Continue
-    </button>
-  </div> 
+    <div id="otp-area" style="display:none">
+        <p style="font-size:13px;color:var(--tx2);text-align:center;margin-bottom:2px">
+          Enter the 6-digit code sent to your email
+        </p>
+        <p class="otp-hint">Check the toast or browser console for the demo code</p>
+        <div class="otp-inputs">
+          <input class="otp-input" maxlength="1" id="o1" oninput="otpNext(this,'o2')" onkeydown="otpBack(event,this,null)" />
+          <input class="otp-input" maxlength="1" id="o2" oninput="otpNext(this,'o3')" onkeydown="otpBack(event,this,'o1')" />
+          <input class="otp-input" maxlength="1" id="o3" oninput="otpNext(this,'o4')" onkeydown="otpBack(event,this,'o2')" />
+          <input class="otp-input" maxlength="1" id="o4" oninput="otpNext(this,'o5')" onkeydown="otpBack(event,this,'o3')" />
+          <input class="otp-input" maxlength="1" id="o5" oninput="otpNext(this,'o6')" onkeydown="otpBack(event,this,'o4')" />
+          <input class="otp-input" maxlength="1" id="o6" oninput="otpLast(this)"      onkeydown="otpBack(event,this,'o5')" />
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-bottom:10px" id="btn-verify-otp" onclick="verifyOTP()">
+          Verify &amp; Continue
+        </button>
+        <button class="btn btn-secondary" style="width:100%;font-size:12px" onclick="resendOTP()">Resend Code</button>
+      </div>
 
   <!-- RESET PASSWORD  -->
  <div id="reset-area" style="display:none">
