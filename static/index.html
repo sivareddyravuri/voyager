@@ -647,7 +647,7 @@ async function searchTravel() {
   // Route summary
   const dateStr = new Date(date + "T00:00:00").toLocaleDateString("en-IN", {day:"numeric",month:"short",year:"numeric"});
   document.getElementById("plan-selected").textContent =
-    `Route found: ${origin} → ${dest} · ${dateStr} · ${passengers} pax · ${r.options.length} options`;
+    `Route found: ${origin} → ${dest} · ${dateStr} · ${passengers} passenger · ${r.options.length} options`;
   document.getElementById("plan-result").style.display = "";
 
   // AI tip (call backend-proxied Claude or direct)
